@@ -1,0 +1,23 @@
+# Dependencies
+  node_modules/
+
+  # Build output
+  dist/
+
+  # Environment variables
+  .env
+  .env.local
+
+  # Temp files
+  temp/
+  *.log
+
+  # Data files (loaded separately into DB)
+  data/
+
+  # Attached assets (not source code)
+  attached_assets/
+
+  # OS files
+  .DS_Store
+  
