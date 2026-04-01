@@ -1,0 +1,129 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add custom animations for the barcode scanner */
+@keyframes scanline {
+  0% {
+    transform: translateY(-150px);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(150px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-150px);
+    opacity: 0.5;
+  }
+}
+
+@keyframes scanner-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(70, 69, 56, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(70, 69, 56, 0.7);
+  }
+}
+
+@keyframes border-pulse {
+  0%,
+  100% {
+    border-color: rgba(70, 69, 56, 0.7);
+  }
+  50% {
+    border-color: rgba(16, 185, 129, 0.8);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    touch-action: manipulation; /* Improves touch handling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overscroll-behavior-y: none; /* Prevent pull-to-refresh */
+  }
+  
+  /* Prevent zoom on input focus for iOS devices */
+  input[type="text"],
+  input[type="email"],
+  input[type="search"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  select,
+  textarea {
+    font-size: 16px; /* iOS doesn't zoom when font-size is 16px or larger */
+    -webkit-appearance: none; /* Remove iOS styling */
+    -moz-appearance: none;
+    appearance: none;
+    touch-action: manipulation; /* Better touch behavior */
+    -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+  }
+  
+  /* Additional fix for iOS touch input zoom */
+  @supports (-webkit-touch-callout: none) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+    
+    /* Fix for iOS Safari momentum scrolling */
+    .camera-container {
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Better button tap experience on iOS */
+    button {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+  }
+  
+  /* Prevent pull-to-refresh on mobile browsers */
+  html, body {
+    overscroll-behavior-y: contain;
+    height: 100%;
+  }
+  
+  /* Enhanced mobile camera styles */
+  video {
+    object-fit: cover !important; /* Ensures video fills the container */
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  /* iOS video playback improvements */
+  video::-webkit-media-controls {
+    display: none !important; /* Hide native controls */
+  }
+  
+  /* Improve buttons on mobile */
+  button {
+    min-height: 44px; /* Apple's recommended minimum touch target size */
+  }
+  
+  /* Improve tap targets on mobile devices */
+  @media (max-width: 640px) {
+    .button, 
+    button,
+    [role="button"],
+    input[type="button"],
+    input[type="submit"],
+    input[type="reset"] {
+      padding: 0.625rem 1rem; /* Comfortable padding for touch */
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Ensure better camera experience on mobile */
+    .camera-container {
+      height: 60vh !important; /* Larger camera viewport on mobile */
+      max-height: 500px; /* But not too large */
+    }
+  }
+}
