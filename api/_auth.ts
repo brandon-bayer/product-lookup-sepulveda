@@ -63,7 +63,9 @@ export function createToken(userId: number): string {
 
 export function verifyToken(token: string): { userId: number } | null {
   try {
-    const [encoded, sig] = token.split(".");
+    const lastDot = token.lastIndexOf(".");
+    const encoded = token.slice(0, lastDot);
+    const sig = token.slice(lastDot + 1);
     const expectedSig = createHmac("sha256", SESSION_SECRET).update(encoded).digest("hex");
     if (sig !== expectedSig) return null;
     const payload = JSON.parse(Buffer.from(encoded, "base64").toString());
