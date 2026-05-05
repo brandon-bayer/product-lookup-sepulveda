@@ -35,7 +35,7 @@ const usernameMappings: Record<string, string> = {
   "Cristy Aguilar": "cristyaguilar",
   "Edward Maldonaldo": "edwardmaldonaldo",
   "Leticia Piña": "leticiapina",
-  "Luis Piña": "luispiña",
+  "Luis Piña": "luispina",
   "Lulu Arnold": "luluarnold",
   "Marco Bisnar": "marcobisnar",
   "Marilyn Nelson": "marilynnelson",
