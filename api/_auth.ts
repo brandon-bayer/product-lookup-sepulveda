@@ -1,5 +1,5 @@
 import { db } from "./_db.js";
-import { users } from "../../shared/schema.js";
+import { users } from "../shared/schema.js";
 import { eq } from "drizzle-orm";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
