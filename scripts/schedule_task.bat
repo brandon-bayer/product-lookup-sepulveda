@@ -1,23 +1,23 @@
 @echo off
-REM Register the nightly sync as a Windows Scheduled Task.
-REM Run this ONCE as Administrator on DC01.
-REM Task runs every night at 11:00 PM.
-
-set SCRIPT_DIR=%~dp0
-set TASK_NAME=QFloors-Neon-Sync
+REM Register the nightly sync with Windows Task Scheduler.
+REM Run this ONCE as Administrator on your workstation.
+REM Task fires every night at 11:00 PM.
 
 schtasks /create ^
-  /tn "%TASK_NAME%" ^
-  /tr "\"%SCRIPT_DIR%run_sync.bat\"" ^
+  /tn "QFloors Neon Sync" ^
+  /tr "py -3.11-32 C:\QFloors_Sync\2_sync_qfloors.py" ^
   /sc DAILY ^
   /st 23:00 ^
   /ru SYSTEM ^
   /f
 
 if %ERRORLEVEL% EQU 0 (
-    echo Task "%TASK_NAME%" scheduled successfully - runs daily at 11:00 PM.
+    echo.
+    echo Task scheduled successfully. Runs nightly at 11:00 PM.
+    echo Check C:\QFloors_Sync\sync_log.txt the next morning to verify.
 ) else (
-    echo Failed to create task. Make sure you are running as Administrator.
+    echo.
+    echo FAILED. Make sure you right-clicked and chose "Run as administrator".
 )
 
 pause
