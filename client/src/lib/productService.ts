@@ -1,12 +1,17 @@
 import { Product } from "@shared/schema";
+import { getToken } from "./queryClient";
+
+function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 async function getProductBySku(sku: string): Promise<Product | null> {
   try {
-    // Handle SKUs that already include the question mark
     const normalizedSku = sku.startsWith('?') ? sku : sku;
-    
+
     const res = await fetch(`/api/product/${normalizedSku}`, {
-      credentials: 'include'
+      headers: authHeaders(),
     });
     
     if (!res.ok) {
@@ -28,7 +33,7 @@ async function searchProducts(query: string): Promise<Product[]> {
     console.log(`Making search request for query: ${query}`);
     
     const res = await fetch(`/api/products?q=${encodeURIComponent(query)}`, {
-      credentials: 'include'
+      headers: authHeaders()
     });
     
     console.log(`Search response status: ${res.status}`);
@@ -49,13 +54,10 @@ async function searchProducts(query: string): Promise<Product[]> {
 
 async function recordScan(sku: string): Promise<void> {
   try {
-    const res = await fetch("/api/scans", { 
+    const res = await fetch("/api/scans", {
       method: "POST",
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ sku }),
-      credentials: 'include'
     });
     
     if (!res.ok) {
@@ -69,7 +71,7 @@ async function recordScan(sku: string): Promise<void> {
 async function getProductHistory(): Promise<any[]> {
   try {
     const res = await fetch('/api/scans', {
-      credentials: 'include'
+      headers: authHeaders()
     });
     
     if (!res.ok) {
@@ -88,7 +90,7 @@ async function refreshProducts(): Promise<{ message: string, count: number }> {
   try {
     const res = await fetch('/api/refresh-products', { 
       method: 'POST',
-      credentials: 'include'
+      headers: authHeaders()
     });
     
     if (!res.ok) {
@@ -106,7 +108,7 @@ async function clearProducts(): Promise<{ message: string }> {
   try {
     const res = await fetch('/api/clear-products', { 
       method: 'POST',
-      credentials: 'include'
+      headers: authHeaders()
     });
     
     if (!res.ok) {
@@ -123,7 +125,7 @@ async function clearProducts(): Promise<{ message: string }> {
 async function listDataFiles(): Promise<{name: string, size: number, date: string}[]> {
   try {
     const res = await fetch('/api/data-files', {
-      credentials: 'include'
+      headers: authHeaders()
     });
     
     if (!res.ok) {
@@ -141,7 +143,7 @@ async function deleteDataFile(filename: string): Promise<{ message: string }> {
   try {
     const res = await fetch(`/api/data-files/${encodeURIComponent(filename)}`, { 
       method: 'DELETE',
-      credentials: 'include'
+      headers: authHeaders()
     });
     
     if (!res.ok) {
@@ -169,7 +171,7 @@ async function uploadProductsCSV(file: File): Promise<{
     const res = await fetch('/api/upload-products', {
       method: 'POST',
       body: formData,
-      credentials: 'include'
+      headers: authHeaders()
     });
     
     if (!res.ok) {

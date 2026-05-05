@@ -4,6 +4,12 @@ import { Product } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { recordScan } from '@/lib/productService';
+import { getToken } from '@/lib/queryClient';
+
+function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 // Field mappings for display
 /**
@@ -40,7 +46,7 @@ export default function NewBrowsePage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/products');
+      const response = await fetch('/api/products', { headers: authHeaders() });
       if (!response.ok) {
         throw new Error(`Server responded with status: ${response.status}`);
       }
@@ -122,7 +128,7 @@ export default function NewBrowsePage() {
     try {
       console.log(`Making search request for query: ${query}`);
       // Direct API call with appropriate debugging
-      const response = await fetch(`/api/products?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/products?q=${encodeURIComponent(query)}`, { headers: authHeaders() });
 
       console.log(`Search response status: ${response.status}`);
       if (!response.ok) {
@@ -144,13 +150,14 @@ export default function NewBrowsePage() {
         // Attempt a product refresh to ensure database is up to date
         try {
           const refreshResponse = await fetch('/api/refresh-products', {
-            method: 'POST'
+            method: 'POST',
+            headers: authHeaders(),
           });
 
           if (refreshResponse.ok) {
             console.log('Products refreshed successfully');
             // Retry the search after refresh
-            const retryResponse = await fetch(`/api/products?q=${encodeURIComponent(query)}`);
+            const retryResponse = await fetch(`/api/products?q=${encodeURIComponent(query)}`, { headers: authHeaders() });
             if (retryResponse.ok) {
               const retryResults = await retryResponse.json();
               console.log(`Retry search returned ${retryResults.length} results`);
