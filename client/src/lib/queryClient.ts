@@ -1,5 +1,23 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+// Token storage
+export function getToken(): string | null {
+  return localStorage.getItem("auth_token");
+}
+
+export function setToken(token: string) {
+  localStorage.setItem("auth_token", token);
+}
+
+export function clearToken() {
+  localStorage.removeItem("auth_token");
+}
+
+function getAuthHeaders(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -11,47 +29,36 @@ interface RequestOptions {
   method?: string;
   headers?: Record<string, string>;
   body?: any;
-  credentials?: RequestCredentials;
 }
 
 export async function apiRequest(
   url: string,
   options: RequestOptions = {}
 ): Promise<Response> {
-  const defaultOptions: RequestInit = {
-    method: options.method || 'GET',
-    credentials: 'include'
+  const headers: Record<string, string> = {
+    ...getAuthHeaders(),
+    ...options.headers,
   };
 
-  // Handle different body types
+  const init: RequestInit = {
+    method: options.method || "GET",
+    headers,
+  };
+
   if (options.body) {
     if (options.body instanceof FormData) {
-      // For FormData, let browser set the Content-Type header
-      defaultOptions.body = options.body;
-    } else if (typeof options.body === 'string') {
-      // Body is already a string
-      defaultOptions.body = options.body;
-      
-      // Set Content-Type header if not already a FormData
-      if (!options.headers?.['Content-Type']) {
-        defaultOptions.headers = {
-          ...options.headers,
-          'Content-Type': 'application/json'
-        };
-      }
+      init.body = options.body;
+    } else if (typeof options.body === "string") {
+      init.body = options.body;
+      headers["Content-Type"] = "application/json";
     } else {
-      // Convert object to JSON string
-      defaultOptions.body = JSON.stringify(options.body);
-      defaultOptions.headers = {
-        ...options.headers,
-        'Content-Type': 'application/json'
-      };
+      init.body = JSON.stringify(options.body);
+      headers["Content-Type"] = "application/json";
     }
-  } else if (options.headers) {
-    defaultOptions.headers = options.headers;
+    init.headers = headers;
   }
-  
-  const res = await fetch(url, defaultOptions);
+
+  const res = await fetch(url, init);
   await throwIfResNotOk(res);
   return res;
 }
@@ -63,7 +70,7 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     const res = await fetch(queryKey[0] as string, {
-      credentials: "include",
+      headers: getAuthHeaders(),
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
