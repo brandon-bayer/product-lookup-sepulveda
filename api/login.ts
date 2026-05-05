@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { db } from "./_db.js";
-import { users } from "../../shared/schema.js";
+import { users } from "../shared/schema.js";
 import { eq } from "drizzle-orm";
 import {
   predefinedUsers, COMMON_PASSWORD, hashPassword,
