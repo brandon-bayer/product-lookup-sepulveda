@@ -1,14 +1,13 @@
 """
 Nightly sync: QFloors (SQL Anywhere 9) -> Neon PostgreSQL
+Uses pg8000 (pure Python driver) — bundles cleanly with PyInstaller.
 Run with: py -3.11-32 C:\QFloors_Sync\2_sync_qfloors.py
 Logs to:  sync_log.txt next to the script/exe
-
-Can also be run as a standalone .exe built with PyInstaller.
 """
 
 import pyodbc
-import psycopg2
-import psycopg2.extras
+import pg8000
+import ssl
 import sys
 import os
 from datetime import datetime
@@ -17,9 +16,7 @@ from datetime import datetime
 def get_base_dir():
     """Return the directory containing this script or .exe."""
     if getattr(sys, 'frozen', False):
-        # Running as a PyInstaller .exe
         return os.path.dirname(sys.executable)
-    # Running as a plain .py script
     return os.path.dirname(os.path.abspath(__file__))
 
 
@@ -33,13 +30,12 @@ QFLOORS_CONN = (
     "PWD=sensar17"
 )
 
-NEON_URL = (
-    "postgresql://neondb_owner:npg_ArB3sMC6xkJN"
-    "@ep-falling-credit-a6bcap4z.us-west-2.aws.neon.tech"
-    "/neondb?sslmode=require"
-)
+NEON_HOST     = "ep-falling-credit-a6bcap4z.us-west-2.aws.neon.tech"
+NEON_DB       = "neondb"
+NEON_USER     = "neondb_owner"
+NEON_PASSWORD = "npg_ArB3sMC6xkJN"
 
-LOG_FILE = os.path.join(get_base_dir(), "sync_log.txt")
+LOG_FILE   = os.path.join(get_base_dir(), "sync_log.txt")
 BATCH_SIZE = 500
 
 SYNC_QUERY = """
@@ -69,15 +65,15 @@ def log(msg):
     line = f"[{datetime.now():%Y-%m-%d %H:%M:%S}] {msg}"
     print(line)
     try:
-        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+        os.makedirs(os.path.dirname(LOG_FILE) or ".", exist_ok=True)
         with open(LOG_FILE, "a", encoding="utf-8") as f:
             f.write(line + "\n")
     except Exception as e:
-        print(f"  WARNING: could not write to log file: {e}")
+        print(f"  WARNING: could not write log: {e}")
 
 
 def fmt_cost(val):
-    """Raw decimal string, e.g. '32.50'"""
+    """Raw decimal string e.g. '32.50'"""
     if val is None:
         return ""
     try:
@@ -87,7 +83,7 @@ def fmt_cost(val):
 
 
 def fmt_price(val):
-    """Dollar-prefixed string, e.g. '$55.00'"""
+    """Dollar-prefixed string e.g. '$55.00'"""
     if val is None:
         return ""
     try:
@@ -96,9 +92,15 @@ def fmt_price(val):
         return str(val).strip()
 
 
-def chunks(lst, n):
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+def batch_execute(cur, sql, rows):
+    """Execute a parameterized INSERT for a batch of rows using pg8000."""
+    # pg8000 uses %s placeholders; build one multi-row VALUES clause
+    num_cols = len(rows[0])
+    row_ph   = "(" + ", ".join(["%s"] * num_cols) + ")"
+    values   = ", ".join([row_ph] * len(rows))
+    flat     = [val for row in rows for val in row]
+    cur.execute(sql.replace("{VALUES}", values), flat)
+
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
@@ -120,7 +122,6 @@ def run_sync():
         rows = cursor.fetchall()
     except Exception as e:
         log(f"ERROR: QFloors query failed: {e}")
-        qconn.close()
         sys.exit(1)
     finally:
         qconn.close()
@@ -132,24 +133,23 @@ def run_sync():
         sys.exit(1)
 
     # 2. Build insert data ------------------------------------------------
-    with_sku = []
+    with_sku    = []
     without_sku = []
 
     for r in rows:
-        sku         = str(r[0]).strip() if r[0] else None
-        style_name  = str(r[1]).strip() if r[1] else ""
-        style_num   = str(r[2]).strip() if r[2] else ""
-        color_name  = str(r[3]).strip() if r[3] else ""
-        color_num   = str(r[4]).strip() if r[4] else ""
-        cost        = fmt_cost(r[5])
-        price       = fmt_price(r[6])
-        manufacturer= str(r[7]).strip() if r[7] else ""
-        width       = str(r[8]).strip() if r[8] else None
-        backing     = str(r[9]).strip() if r[9] else None
+        sku          = str(r[0]).strip() if r[0] else None
+        style_name   = str(r[1]).strip() if r[1] else ""
+        style_num    = str(r[2]).strip() if r[2] else ""
+        color_name   = str(r[3]).strip() if r[3] else ""
+        color_num    = str(r[4]).strip() if r[4] else ""
+        cost         = fmt_cost(r[5])
+        price        = fmt_price(r[6])
+        manufacturer = str(r[7]).strip() if r[7] else ""
+        width        = str(r[8]).strip() if r[8] else None
+        backing      = str(r[9]).strip() if r[9] else None
 
         record = (sku, style_name, style_num, color_name, color_num,
                   cost, price, manufacturer, width, backing)
-
         if sku:
             with_sku.append(record)
         else:
@@ -160,7 +160,14 @@ def run_sync():
     # 3. Write to Neon ----------------------------------------------------
     log("Connecting to Neon...")
     try:
-        nconn = psycopg2.connect(NEON_URL)
+        ssl_ctx = ssl.create_default_context()
+        nconn   = pg8000.connect(
+            host=NEON_HOST,
+            database=NEON_DB,
+            user=NEON_USER,
+            password=NEON_PASSWORD,
+            ssl_context=ssl_ctx,
+        )
     except Exception as e:
         log(f"ERROR: Neon connection failed: {e}")
         sys.exit(1)
@@ -168,18 +175,15 @@ def run_sync():
     try:
         ncur = nconn.cursor()
 
-        # Clear existing data
         ncur.execute("DELETE FROM sepulveda_products")
-        log(f"Cleared existing rows from sepulveda_products")
+        log("Cleared existing rows from sepulveda_products")
 
-        inserted = 0
-
-        # Insert rows WITH a SKU using ON CONFLICT upsert
+        # Upsert rows WITH a SKU
         upsert_sql = """
             INSERT INTO sepulveda_products
                 (sku, style_name, style_number, color_name, color_number,
                  cost, price, manufacturer, width, backing)
-            VALUES %s
+            VALUES {VALUES}
             ON CONFLICT (sku) DO UPDATE SET
                 style_name   = EXCLUDED.style_name,
                 style_number = EXCLUDED.style_number,
@@ -191,29 +195,31 @@ def run_sync():
                 width        = EXCLUDED.width,
                 backing      = EXCLUDED.backing
         """
-        for batch in chunks(with_sku, BATCH_SIZE):
-            psycopg2.extras.execute_values(ncur, upsert_sql, batch)
+        inserted = 0
+        for i in range(0, len(with_sku), BATCH_SIZE):
+            batch = with_sku[i:i + BATCH_SIZE]
+            batch_execute(ncur, upsert_sql, batch)
             inserted += len(batch)
-            log(f"  Upserted {inserted}/{len(with_sku)} SKU rows...")
+            log(f"  Upserted {inserted}/{len(with_sku)} rows with SKU...")
 
-        # Insert rows WITHOUT a SKU (no conflict handling needed)
-        insert_sql = """
-            INSERT INTO sepulveda_products
-                (sku, style_name, style_number, color_name, color_number,
-                 cost, price, manufacturer, width, backing)
-            VALUES %s
-        """
-        no_sku_inserted = 0
-        for batch in chunks(without_sku, BATCH_SIZE):
-            psycopg2.extras.execute_values(ncur, insert_sql, batch)
-            no_sku_inserted += len(batch)
-
+        # Insert rows WITHOUT a SKU
         if without_sku:
-            log(f"  Inserted {no_sku_inserted} no-SKU rows")
+            insert_sql = """
+                INSERT INTO sepulveda_products
+                    (sku, style_name, style_number, color_name, color_number,
+                     cost, price, manufacturer, width, backing)
+                VALUES {VALUES}
+            """
+            no_sku_inserted = 0
+            for i in range(0, len(without_sku), BATCH_SIZE):
+                batch = without_sku[i:i + BATCH_SIZE]
+                batch_execute(ncur, insert_sql, batch)
+                no_sku_inserted += len(batch)
+            log(f"  Inserted {no_sku_inserted} rows without SKU")
 
         nconn.commit()
         total = len(with_sku) + len(without_sku)
-        log(f"Sync complete — {total} products in Neon")
+        log(f"Sync complete — {total} products written to Neon")
         log("=" * 60)
 
     except Exception as e:
