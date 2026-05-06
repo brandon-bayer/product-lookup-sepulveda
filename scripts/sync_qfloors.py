@@ -1,7 +1,9 @@
 """
 Nightly sync: QFloors (SQL Anywhere 9) -> Neon PostgreSQL
 Run with: py -3.11-32 C:\QFloors_Sync\2_sync_qfloors.py
-Logs to:  C:\QFloors_Sync\sync_log.txt
+Logs to:  sync_log.txt next to the script/exe
+
+Can also be run as a standalone .exe built with PyInstaller.
 """
 
 import pyodbc
@@ -10,6 +12,16 @@ import psycopg2.extras
 import sys
 import os
 from datetime import datetime
+
+
+def get_base_dir():
+    """Return the directory containing this script or .exe."""
+    if getattr(sys, 'frozen', False):
+        # Running as a PyInstaller .exe
+        return os.path.dirname(sys.executable)
+    # Running as a plain .py script
+    return os.path.dirname(os.path.abspath(__file__))
+
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
@@ -27,7 +39,7 @@ NEON_URL = (
     "/neondb?sslmode=require"
 )
 
-LOG_FILE = r"C:\QFloors_Sync\sync_log.txt"
+LOG_FILE = os.path.join(get_base_dir(), "sync_log.txt")
 BATCH_SIZE = 500
 
 SYNC_QUERY = """
