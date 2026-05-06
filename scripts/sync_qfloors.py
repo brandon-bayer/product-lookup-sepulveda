@@ -155,6 +155,12 @@ def run_sync():
         else:
             without_sku.append(record)
 
+    # Deduplicate by SKU — keep last occurrence (QFloors can have duplicate SKUs)
+    seen = {}
+    for record in with_sku:
+        seen[record[0]] = record
+    with_sku = list(seen.values())
+
     log(f"  {len(with_sku)} records with SKU, {len(without_sku)} without SKU")
 
     # 3. Write to Neon ----------------------------------------------------
