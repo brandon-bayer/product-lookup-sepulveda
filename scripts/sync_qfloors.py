@@ -53,9 +53,9 @@ SELECT
 FROM ProductColor pc
 JOIN ProductStyle       ps ON pc.StyleIndex  = ps.StyleIndex
 JOIN ProductManufacture pm ON ps.VenderIndex  = pm.ManIndex
-WHERE pc.Active = 1
-  AND ps.Active = 1
-  AND pm.Active = 1
+WHERE COALESCE(pc.Active, 1) = 1
+  AND COALESCE(ps.Active, 1) = 1
+  AND COALESCE(pm.Active, 1) = 1
 ORDER BY pm.ManName, ps.StyleName, pc.ColorName
 """
 
