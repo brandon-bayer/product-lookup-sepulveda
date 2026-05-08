@@ -33,7 +33,7 @@ const predefinedUsers = [
   { displayName: "Shaneen Gottula", username: "shaneengottula" }
 ];
 
-const COMMON_PASSWORD = "contempo2025";
+const COMMON_PASSWORD = "f4d71";
 
 const scryptAsync = promisify(scrypt);
 

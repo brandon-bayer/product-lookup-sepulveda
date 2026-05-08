@@ -24,7 +24,7 @@ export const predefinedUsers = [
   { displayName: "Shaneen Gottula", username: "shaneengottula" },
 ];
 
-export const COMMON_PASSWORD = "contempo2025";
+export const COMMON_PASSWORD = "f4d71";
 
 export async function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
