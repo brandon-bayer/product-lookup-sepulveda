@@ -77,7 +77,8 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col px-4 pt-14" style={{ background: 'var(--app-bg)' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'var(--app-bg)' }}>
+      <div className="w-full max-w-sm">
       <h1 className="text-3xl font-bold mb-8 tracking-tight" style={{ color: '#0f172a' }}>
         Product Catalog
       </h1>
@@ -152,6 +153,7 @@ export default function AuthPage() {
             </form>
           </Form>
         </div>
+      </div>
       </div>
     </div>
   );
