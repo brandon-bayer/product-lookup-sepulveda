@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, UserCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useLocation } from "wouter";
@@ -16,11 +15,11 @@ const predefinedUsers = [
   "Brandon Bayer",
   "Cristy Aguilar",
   "Edward Maldonaldo",
+  "Karen Scott",
   "Leticia Piña",
   "Luis Piña",
   "Lulu Arnold",
   "Marco Bisnar",
-  "Marilyn Nelson",
   "Mark Haloossim",
   "Matthew Green",
   "Matt Mark",
@@ -34,12 +33,12 @@ const usernameMappings: Record<string, string> = {
   "Brandon Bayer": "brandonbayer",
   "Cristy Aguilar": "cristyaguilar",
   "Edward Maldonaldo": "edwardmaldonaldo",
+  "Karen Scott": "karenscott",
   "Leticia Piña": "leticiapina",
   "Luis Piña": "luispina",
   "Lulu Arnold": "luluarnold",
   "Marco Bisnar": "marcobisnar",
-  "Marilyn Nelson": "marilynnelson",
-  "Mark Haloossim": "markhaloossim", 
+  "Mark Haloossim": "markhaloossim",
   "Matthew Green": "matthewgreen",
   "Matt Mark": "mattmark",
   "Richard Garcia": "richardgarcia",
@@ -102,44 +101,48 @@ export default function AuthPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center min-h-screen bg-[#1d4ed8]">
+        <Loader2 className="h-8 w-8 animate-spin text-white" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Form column */}
-      <div className="w-full md:w-1/2 p-8 flex items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">
-              Contempo Product Search
-            </CardTitle>
-            <CardDescription className="text-center">
-              Sepulveda Location<br />
-              Select your name to access the system
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--app-bg)' }}>
+      {/* Blue header */}
+      <div className="bg-[#1d4ed8] px-6 pt-12 pb-10 flex flex-col items-center" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
+        <img
+          src={contempoLogo}
+          alt="Contempo Logo"
+          className="h-10 mb-4"
+        />
+        <p className="text-white/70 text-sm">Sepulveda Showroom · Product Catalog</p>
+      </div>
+
+      {/* Form card */}
+      <div className="flex-grow flex items-start justify-center px-4 pt-8">
+        <div className="w-full max-w-sm bg-white rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+          <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200">
+            <h2 className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Sign In</h2>
+          </div>
+          <div className="p-5">
             <Form {...userForm}>
-              <form onSubmit={userForm.handleSubmit(onUserSelect)} className="space-y-6">
+              <form onSubmit={userForm.handleSubmit(onUserSelect)} className="space-y-5">
                 <FormField
                   control={userForm.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base">Your Name</FormLabel>
+                      <FormLabel className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>Your Name</FormLabel>
                       <FormControl>
-                        <Select 
-                          onValueChange={field.onChange} 
+                        <Select
+                          onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
-                          <SelectTrigger className="w-full h-12">
-                            <SelectValue placeholder="Select your name from the list" />
+                          <SelectTrigger className="w-full border-[#e2e5ea] focus:ring-[rgba(29,78,216,.1)] focus:border-[#1d4ed8]" style={{ height: '44px' }}>
+                            <SelectValue placeholder="Select your name" />
                           </SelectTrigger>
-                          <SelectContent className="max-h-[200px] overflow-y-auto">
+                          <SelectContent className="max-h-[240px] overflow-y-auto">
                             {predefinedUsers.map((userName) => (
                               <SelectItem key={userName} value={userName} className="py-2">
                                 {userName}
@@ -152,39 +155,25 @@ export default function AuthPage() {
                     </FormItem>
                   )}
                 />
-                
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 text-base"
+
+                <Button
+                  type="submit"
+                  className="w-full bg-[#1d4ed8] hover:bg-[#1e40af] text-white font-semibold"
+                  style={{ height: '44px' }}
                   disabled={isSelectingUser || loginMutation.isPending}
                 >
                   {isSelectingUser || loginMutation.isPending ? (
                     <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Logging in...
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
                     </>
                   ) : (
-                    <>
-                      <UserCircle className="mr-2 h-5 w-5" />
-                      Continue
-                    </>
+                    "Continue"
                   )}
                 </Button>
               </form>
             </Form>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Hero section column */}
-      <div className="hidden md:flex md:w-1/2 bg-[#464538] items-center justify-center">
-        <div className="p-8 flex items-center justify-center">
-          <img 
-            src={contempoLogo} 
-            alt="Contempo Logo" 
-            className="max-w-full h-auto"
-            style={{ maxWidth: "80%" }}
-          />
+          </div>
         </div>
       </div>
     </div>
