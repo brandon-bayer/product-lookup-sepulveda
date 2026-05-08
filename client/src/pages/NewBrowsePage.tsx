@@ -1,10 +1,11 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Product } from '@shared/schema';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { recordScan } from '@/lib/productService';
 import { getToken } from '@/lib/queryClient';
+import { format } from 'date-fns';
 
 function authHeaders(): Record<string, string> {
   const token = getToken();
@@ -35,8 +36,23 @@ export default function NewBrowsePage() {
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
   // Toast notifications
   const { toast } = useToast();
+
+  useEffect(() => {
+    const token = getToken();
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+    fetch('/api/data-files', { headers })
+      .then(r => r.ok ? r.json() : null)
+      .then((files: Array<{ name: string; size: number; date: string }> | null) => {
+        if (!files || files.length === 0) return;
+        const latest = files.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
+        setLastUpdated(format(new Date(latest.date), 'MMM d, yyyy · h:mm a'));
+      })
+      .catch(() => {});
+  }, []);
 
   // Load products without useEffect or React Query
   const loadProducts = async () => {
@@ -213,36 +229,38 @@ export default function NewBrowsePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
-      <header className="bg-[#464538] text-white shadow-md">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col">
-            <div className="flex items-center mb-1">
-              <span className="material-icons mr-2">search</span>
-              <h1 className="text-xl font-medium">Sepulveda Showroom</h1>
-            </div>
-            <p className="text-sm text-white/80 ml-8">Product Inventory Search</p>
+    <div className="flex flex-col min-h-screen" style={{ background: 'var(--app-bg)' }}>
+      <header className="bg-[#1d4ed8] text-white" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div>
+            <h1 className="text-base font-semibold tracking-tight">Product Catalog</h1>
+            {lastUpdated && (
+              <p className="text-[10px] text-white/55 mt-0.5">Updated {lastUpdated}</p>
+            )}
           </div>
+          <span className="text-xs text-white/50 font-medium">v1.0.0</span>
         </div>
       </header>
 
       <main className="flex-grow container mx-auto px-4 py-6">
         {/* Search form */}
-        <form onSubmit={handleSubmitSearch} className="mb-6">
-          <div className="flex">
+        <form onSubmit={handleSubmitSearch} className="mb-5">
+          <div className="flex gap-2">
             <div className="relative flex-grow">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <span className="material-icons text-neutral-300">search</span>
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <span className="material-icons text-gray-300 text-lg">search</span>
               </span>
               <Input
                 type="search"
                 inputMode="search"
-                placeholder="Search by SKU, style, color, etc."
-                className="pl-10 pr-10"
-                style={{ 
+                placeholder="Search by SKU, style, color…"
+                className="pl-9 pr-9 border-[#e2e5ea] rounded-md focus-visible:ring-[rgba(29,78,216,.1)] focus-visible:border-[#1d4ed8]"
+                style={{
                   fontSize: '16px',
                   WebkitAppearance: 'none',
-                  height: '48px' // Taller input for better touch target
+                  height: '44px',
+                  background: '#fff',
+                  color: '#374151',
                 }}
                 enterKeyHint="search"
                 autoCapitalize="off"
@@ -259,26 +277,24 @@ export default function NewBrowsePage() {
                 }}
                 disabled={isLoading}
               />
-              {/* Clear button (X) that appears when there's text */}
               {searchInput && (
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 flex items-center pr-3"
                   onClick={() => {
                     setSearchInput('');
-                    if (hasSearched) {
-                      handleResetSearch();
-                    }
+                    if (hasSearched) handleResetSearch();
                   }}
                   aria-label="Clear search"
                 >
-                  <span className="material-icons text-neutral-400 hover:text-neutral-700">close</span>
+                  <span className="material-icons text-gray-300 hover:text-gray-500 text-lg">close</span>
                 </button>
               )}
             </div>
-            <Button 
-              type="submit" 
-              className="ml-2 bg-[#464538] hover:bg-[#3c3b30] h-12 px-6"
+            <Button
+              type="submit"
+              className="bg-[#1d4ed8] hover:bg-[#1e40af] text-white text-sm font-semibold px-5 rounded-md"
+              style={{ height: '44px' }}
               disabled={isLoading}
             >
               Search
@@ -319,7 +335,7 @@ export default function NewBrowsePage() {
             </div>
           </div>
         ) : error ? (
-          <div className="bg-white rounded-lg shadow-md p-8 flex flex-col items-center justify-center text-center">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center justify-center text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
             <div className="w-16 h-16 flex items-center justify-center bg-red-100 rounded-full mb-4">
               <span className="material-icons text-red-500 text-3xl">error</span>
             </div>
@@ -334,106 +350,80 @@ export default function NewBrowsePage() {
             </Button>
           </div>
         ) : products.length > 0 ? (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="grid divide-y divide-neutral-200">
-              {products.map((product, index) => (
-                <div 
-                  key={`product-${index}-${product.sku}`} 
-                  className="p-4 hover:bg-neutral-100 transition-colors cursor-pointer"
-                  onClick={() => {
-                    // Record viewed product in history if SKU exists
-                    if (product.sku) {
-                      recordScan(product.sku).catch(error => {
-                        console.error('Failed to record product view in history:', error);
-                      });
-                    }
+          <div className="flex flex-col gap-2">
+            {products.map((product, index) => (
+              <div
+                key={`product-${index}-${product.sku}`}
+                className="bg-white rounded-lg overflow-hidden cursor-pointer hover:brightness-[0.98] transition-all"
+                style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}
+                onClick={() => {
+                  if (product.sku) {
+                    recordScan(product.sku).catch(err => console.error('Failed to record view:', err));
+                  }
+                  toast({
+                    description: product.sku ? `${product.sku} logged to history.` : 'Product viewed.',
+                    duration: 2000,
+                  });
+                }}
+              >
+                {/* Card header: SKU + Manufacturer */}
+                <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-b border-gray-100">
+                  <span className="font-medium text-sm" style={{ color: 'var(--text-head)' }}>
+                    {product.sku || 'No SKU'}
+                  </span>
+                  <span className="text-xs truncate ml-4 max-w-[50%] text-right" style={{ color: 'var(--text-muted)' }}>
+                    {cleanManufacturer(product.manufacturer)}
+                  </span>
+                </div>
 
-                    // Could expand this to show a detailed view in the future
-                    toast({
-                      description: product.sku 
-                        ? `Product details for ${product.sku} logged to history.`
-                        : `Product details viewed.`,
-                      duration: 2000,
-                    });
-                  }}
-                >
-                  {/* SKU at the top */}
-                  <div className="mb-4">
-                    <h3 className="font-medium text-base" style={{ color: 'rgb(12, 10, 9)' }}>
-                      {product.sku ? product.sku : 'No SKU'}
-                    </h3>
+                {/* Fields: 2×2 grid */}
+                <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+                  <div className="px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-wide font-semibold mb-0.5" style={{ color: 'var(--text-muted)' }}>P. Style</p>
+                    <p className="text-sm font-medium leading-snug" style={{ color: 'var(--text-head)' }}>{product.styleName || 'N/A'}</p>
                   </div>
-
-                  {/* First row: P Style and Style */}
-                  <div className="grid grid-cols-2 gap-4 mb-3">
-                    {/* Style Name → P Style */}
-                    <div>
-                      <p className="text-[#575757] font-medium" style={{ fontSize: '0.8rem', marginBottom: '0.05rem' }}>P. Style</p>
-                      <p className="font-medium text-base">{product.styleName || "N/A"}</p>
-                    </div>
-
-                    {/* Style Number → Style */}
-                    <div>
-                      <p className="text-[#575757] font-medium" style={{ fontSize: '0.8rem', marginBottom: '0.05rem' }}>Style</p>
-                      <p className="font-medium text-base">{product.styleNumber || "N/A"}</p>
-                    </div>
-                  </div>
-
-                  {/* Second row: P Color and Color */}
-                  <div className="grid grid-cols-2 gap-4 mb-3">
-                    {/* Color Name → P Color */}
-                    <div>
-                      <p className="text-[#575757] font-medium" style={{ fontSize: '0.8rem', marginBottom: '0.05rem' }}>P. Color</p>
-                      <p className="font-medium text-base">{product.colorName || "N/A"}</p>
-                    </div>
-
-                    {/* Color Number → Color */}
-                    <div>
-                      <p className="text-[#575757] font-medium" style={{ fontSize: '0.8rem', marginBottom: '0.05rem' }}>Color</p>
-                      <p className="font-medium text-base">{product.colorNumber || "N/A"}</p>
-                    </div>
-                  </div>
-
-                  {/* Third row: Manufacturer full width */}
-                  <div className="mb-3">
-                    <p className="text-[#575757] font-medium" style={{ fontSize: '0.8rem', marginBottom: '0.05rem' }}>Manufacturer</p>
-                    <p className="font-medium text-base">{cleanManufacturer(product.manufacturer)}</p>
-                  </div>
-
-                  {/* Fourth row: Date, Width/Qty, Cost, Retail */}
-                  <div className="flex justify-between items-start">
-                    {/* Date (Backing) */}
-                    <div className="flex-1">
-                      <p className="text-[#575757] font-medium" style={{ fontSize: '0.8rem', marginBottom: '0.05rem' }}>Date</p>
-                      <p className="font-medium text-base">{product.backing || "N/A"}</p>
-                    </div>
-
-                    {/* Width/Qty */}
-                    <div className="flex-1">
-                      <p className="text-[#575757] font-medium" style={{ fontSize: '0.8rem', marginBottom: '0.05rem' }}>Width/Qty</p>
-                      <p className="font-medium text-base">{product.width || "N/A"}</p>
-                    </div>
-
-                    {/* Cost */}
-                    <div className="flex-1">
-                      <p className="text-[#575757] font-medium" style={{ fontSize: '0.8rem', marginBottom: '0.05rem' }}>Cost</p>
-                      <p className="font-medium text-base">{formatCost(product.cost)}</p>
-                    </div>
-
-                    {/* Retail */}
-                    <div className="flex-1">
-                      <p className="text-[#575757] font-medium" style={{ fontSize: '0.8rem', marginBottom: '0.05rem' }}>Retail</p>
-                      <p className="font-medium text-base">{formatPrice(product.price)}</p>
-                    </div>
+                  <div className="px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-wide font-semibold mb-0.5" style={{ color: 'var(--text-muted)' }}>Style</p>
+                    <p className="text-sm font-medium leading-snug" style={{ color: 'var(--text-head)' }}>{product.styleNumber || 'N/A'}</p>
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+                  <div className="px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-wide font-semibold mb-0.5" style={{ color: 'var(--text-muted)' }}>P. Color</p>
+                    <p className="text-sm font-medium leading-snug" style={{ color: 'var(--text-head)' }}>{product.colorName || 'N/A'}</p>
+                  </div>
+                  <div className="px-3 py-2.5">
+                    <p className="text-[10px] uppercase tracking-wide font-semibold mb-0.5" style={{ color: 'var(--text-muted)' }}>Color</p>
+                    <p className="text-sm font-medium leading-snug" style={{ color: 'var(--text-head)' }}>{product.colorNumber || 'N/A'}</p>
+                  </div>
+                </div>
+
+                {/* Footer: Cost, Retail, Width/Qty, Date */}
+                <div className="grid grid-cols-4 divide-x divide-gray-100 border-t border-gray-100">
+                  <div className="px-3 py-2" style={{ background: 'var(--sell-bg)' }}>
+                    <p className="text-[10px] uppercase tracking-wide font-semibold mb-0.5" style={{ color: 'var(--sell)' }}>Cost</p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--sell)' }}>{formatCost(product.cost)}</p>
+                  </div>
+                  <div className="px-3 py-2" style={{ background: 'var(--sell-bg)' }}>
+                    <p className="text-[10px] uppercase tracking-wide font-semibold mb-0.5" style={{ color: 'var(--sell)' }}>Retail</p>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--sell)' }}>{formatPrice(product.price)}</p>
+                  </div>
+                  <div className="px-3 py-2 bg-gray-50">
+                    <p className="text-[10px] uppercase tracking-wide font-semibold mb-0.5" style={{ color: 'var(--text-muted)' }}>Width/Qty</p>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>{product.width || 'N/A'}</p>
+                  </div>
+                  <div className="px-3 py-2 bg-gray-50">
+                    <p className="text-[10px] uppercase tracking-wide font-semibold mb-0.5" style={{ color: 'var(--text-muted)' }}>Date</p>
+                    <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>{product.backing || 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md p-8 flex flex-col items-center justify-center text-center">
-            <div className="w-16 h-16 flex items-center justify-center bg-primary/10 rounded-full mb-4">
-              <span className="material-icons text-primary text-3xl">search_off</span>
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center justify-center text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+            <div className="w-14 h-14 flex items-center justify-center bg-gray-100 rounded-full mb-4">
+              <span className="material-icons text-gray-400 text-2xl">search_off</span>
             </div>
             <h3 className="font-medium mb-2">No Products Found</h3>
             <p className="text-neutral-500 text-sm">

@@ -73,84 +73,61 @@ export default function ProductDetailCard({ product, saveToHistory = true }: Pro
     }
   };
   
+  const label = "text-[10px] uppercase tracking-wide font-semibold mb-0.5";
+
   return (
-    <div className="mb-6 bg-white rounded-lg shadow-md overflow-hidden">
-      <div className="bg-primary text-white p-4 flex justify-between items-center">
-        <h2 className="text-lg font-medium flex items-center text-left">
-          <span className="material-icons mr-2">inventory_2</span>
-          Product Data
-        </h2>
-        {product.sku ? (
-          <span className="text-sm bg-white/20 px-2 py-1 rounded">{product.sku}</span>
-        ) : (
-          <span className="text-sm bg-white/20 px-2 py-1 rounded">No SKU</span>
-        )}
+    <div className="mb-6 bg-white rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+      {/* Card header: SKU + Manufacturer */}
+      <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-200">
+        <span className="font-bold text-sm" style={{ color: 'var(--text-head)' }}>
+          {product.sku || 'No SKU'}
+        </span>
+        <span className="text-xs truncate ml-4 max-w-[55%] text-right" style={{ color: 'var(--text-muted)' }}>
+          {cleanManufacturer}
+        </span>
       </div>
-      
-      <div className="divide-y divide-neutral-200">
-        {/* Main Product Info Section - with updated labels */}
-        <div className="p-4">
-          <div className="space-y-4">
-            {/* Style Name → P Style */}
-            <div>
-              <p className="text-sm text-[#575757] font-medium mb-1">P Style</p>
-              <p className="font-medium text-base">{product.styleName || 'N/A'}</p>
-            </div>
-            
-            {/* Color Name → P Color */}
-            <div>
-              <p className="text-sm text-[#575757] font-medium mb-1">P Color</p>
-              <p className="font-medium text-base">{product.colorName || 'N/A'}</p>
-            </div>
-            
-            {/* Style Number → Style (Private Label Name) */}
-            <div>
-              <p className="text-sm text-[#575757] font-medium mb-1">Style</p>
-              <p className="font-medium text-base">{product.styleNumber || 'N/A'}</p>
-            </div>
-            
-            {/* Color Number → Color (Private Label Color) */}
-            <div>
-              <p className="text-sm text-[#575757] font-medium mb-1">Color</p>
-              <p className="font-medium text-base">{product.colorNumber || 'N/A'}</p>
-            </div>
-            
-            {/* Manufacturer → Manufacturer */}
-            <div>
-              <p className="text-sm text-[#575757] font-medium mb-1">Manufacturer</p>
-              <p className="font-medium text-base">{cleanManufacturer}</p>
-            </div>
-            
-            {/* Cost and Price */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Roll Costs → Cost */}
-              <div>
-                <p className="text-sm text-[#575757] font-medium mb-1">Cost</p>
-                <p className="font-medium text-base">{formatCost(product.cost)}</p>
-              </div>
-              
-              {/* Retail Price → Retail */}
-              <div>
-                <p className="text-sm text-[#575757] font-medium mb-1">Retail</p>
-                <p className="font-medium text-base">{formatPrice(product.price)}</p>
-              </div>
-            </div>
-            
-            {/* Optional fields that may not be directly in our schema but are in the CSV */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Width/Quant-Carton → Width/Qty */}
-              <div>
-                <p className="text-sm text-[#575757] font-medium mb-1">Width/Qty</p>
-                <p className="font-medium text-base">{product.width || 'N/A'}</p>
-              </div>
-              
-              {/* Backing → Date */}
-              <div>
-                <p className="text-sm text-[#575757] font-medium mb-1">Date</p>
-                <p className="font-medium text-base">{product.backing || 'N/A'}</p>
-              </div>
-            </div>
+
+      {/* Fields: 2×2 grid — P.Style/Style | P.Color/Color */}
+      <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+        <div className="p-4 space-y-4">
+          <div>
+            <p className={`${label}`} style={{ color: 'var(--text-muted)' }}>P. Style</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>{product.styleName || 'N/A'}</p>
           </div>
+          <div>
+            <p className={`${label}`} style={{ color: 'var(--text-muted)' }}>Style</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>{product.styleNumber || 'N/A'}</p>
+          </div>
+        </div>
+        <div className="p-4 space-y-4">
+          <div>
+            <p className={`${label}`} style={{ color: 'var(--text-muted)' }}>P. Color</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>{product.colorName || 'N/A'}</p>
+          </div>
+          <div>
+            <p className={`${label}`} style={{ color: 'var(--text-muted)' }}>Color</p>
+            <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>{product.colorNumber || 'N/A'}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer strip: Cost, Retail, Width/Qty, Date */}
+      <div className="grid grid-cols-4 divide-x divide-gray-100">
+        <div className="px-4 py-3" style={{ background: 'var(--sell-bg)' }}>
+          <p className={`${label}`} style={{ color: 'var(--sell)' }}>Cost</p>
+          <p className="text-sm font-semibold" style={{ color: 'var(--sell)' }}>{formatCost(product.cost)}</p>
+        </div>
+        <div className="px-4 py-3" style={{ background: 'var(--sell-bg)' }}>
+          <p className={`${label}`} style={{ color: 'var(--sell)' }}>Retail</p>
+          <p className="text-sm font-semibold" style={{ color: 'var(--sell)' }}>{formatPrice(product.price)}</p>
+        </div>
+        <div className="px-4 py-3 bg-gray-50">
+          <p className={`${label}`} style={{ color: 'var(--text-muted)' }}>Width/Qty</p>
+          <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>{product.width || 'N/A'}</p>
+        </div>
+        <div className="px-4 py-3 bg-gray-50">
+          <p className={`${label}`} style={{ color: 'var(--text-muted)' }}>Date</p>
+          <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>{product.backing || 'N/A'}</p>
         </div>
       </div>
     </div>

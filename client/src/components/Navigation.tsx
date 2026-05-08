@@ -20,7 +20,7 @@ export default function Navigation({ currentPath }: NavigationProps) {
   };
 
   return (
-    <footer className="shadow-md fixed bottom-0 left-0 right-0 z-50" style={{ backgroundColor: '#464538' }}>
+    <footer className="shadow-md fixed bottom-0 left-0 right-0 z-50" style={{ backgroundColor: '#1d4ed8' }}>
       <div className="container mx-auto">
         <nav className="flex justify-around items-center">
           <Link href="/">

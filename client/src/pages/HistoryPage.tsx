@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { getProductBySku } from '@/lib/productService';
 import { LoadingState } from '@/components/StatusMessages';
 import { format } from 'date-fns';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Product } from '@shared/schema';
 import ProductDetailCard from '@/components/ProductDetailCard';
@@ -57,31 +56,26 @@ export default function HistoryPage() {
 
   if (isLoadingScans) {
     return (
-      <div className="container mx-auto px-4 py-6">
-        <header className="bg-[#464538] text-white shadow-md mb-6">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center">
-              <span className="material-icons mr-2">history</span>
-              <h1 className="text-2xl font-medium">History</h1>
-            </div>
+      <div className="flex flex-col min-h-screen" style={{ background: 'var(--app-bg)' }}>
+        <header className="bg-[#1d4ed8] text-white mb-6" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
+          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+            <h1 className="text-base font-semibold tracking-tight">Product Catalog</h1>
+            <span className="text-xs text-white/60 font-medium uppercase tracking-wider">History</span>
           </div>
         </header>
-        <LoadingState message="Loading scan history..." />
+        <div className="container mx-auto px-4">
+          <LoadingState message="Loading scan history..." />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="bg-[#464538] text-white shadow-md">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col">
-            <div className="flex items-center mb-1">
-              <span className="material-icons mr-2">history</span>
-              <h1 className="text-2xl font-medium">Sepulveda Showroom</h1>
-            </div>
-            <p className="text-sm text-white/80 ml-8">Search History</p>
-          </div>
+    <div className="flex flex-col min-h-screen" style={{ background: 'var(--app-bg)' }}>
+      <header className="bg-[#1d4ed8] text-white" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <h1 className="text-base font-semibold tracking-tight">Product Catalog</h1>
+          <span className="text-xs text-white/60 font-medium uppercase tracking-wider">History</span>
         </div>
       </header>
 
@@ -133,45 +127,39 @@ export default function HistoryPage() {
               )}
             </div>
           ) : (
-            <div className="grid gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center">
-                    <span className="material-icons mr-2 text-primary">history</span>
-                    Recently Viewed Products
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="divide-y divide-neutral-200">
-                    {scans.map((scan: { sku: string, timestamp: string }, index: number) => (
-                      <div 
-                        key={index} 
-                        className="p-3 flex justify-between items-center cursor-pointer hover:bg-neutral-100 transition-colors"
-                        onClick={() => {
-                          setSelectedScan(scan.sku);
-                          setViewingProduct(true);
-                        }}
-                      >
-                        <div>
-                          <div className="font-medium">?{scan.sku}</div>
-                          <div className="text-xs text-neutral-500">{formatDate(scan.timestamp)}</div>
-                        </div>
-                        <span className="material-icons text-neutral-500">chevron_right</span>
-                      </div>
-                    ))}
+            <div className="bg-white rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+              {/* List header */}
+              <div className="px-4 py-2.5 bg-gray-50 border-b border-gray-200">
+                <h2 className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Recently Viewed</h2>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {scans.map((scan: { sku: string, timestamp: string }, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={() => {
+                      setSelectedScan(scan.sku);
+                      setViewingProduct(true);
+                    }}
+                  >
+                    <div>
+                      <div className="font-bold text-sm" style={{ color: 'var(--text-head)' }}>{scan.sku}</div>
+                      <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{formatDate(scan.timestamp)}</div>
+                    </div>
+                    <span className="material-icons text-gray-300 text-lg">chevron_right</span>
                   </div>
-                </CardContent>
-              </Card>
+                ))}
+              </div>
             </div>
           )
         ) : (
-          <div className="bg-white rounded-lg shadow-md p-8 flex flex-col items-center justify-center text-center">
-            <div className="w-16 h-16 flex items-center justify-center bg-primary/10 rounded-full mb-4">
-              <span className="material-icons text-primary text-3xl">history</span>
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center justify-center text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+            <div className="w-14 h-14 flex items-center justify-center bg-gray-100 rounded-full mb-4">
+              <span className="material-icons text-gray-400 text-2xl">history</span>
             </div>
-            <h3 className="font-medium mb-2">No History Found</h3>
-            <p className="text-neutral-500 text-sm mb-6">Your history will appear here when you view products.</p>
-            <Button className="bg-primary text-white" onClick={() => window.location.href = '/'}>
+            <h3 className="font-semibold text-sm mb-1" style={{ color: 'var(--text-head)' }}>No History Yet</h3>
+            <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Products you view will appear here.</p>
+            <Button className="bg-[#1d4ed8] hover:bg-[#1e40af] text-white text-sm font-semibold" onClick={() => window.location.href = '/'}>
               Browse Products
             </Button>
           </div>
