@@ -147,7 +147,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/refresh-products', isAuthenticated, async (req: Request, res: Response) => {
+  const requireAdminKey = (req: Request, res: Response, next: Function) => {
+    const key = req.headers['x-admin-key'];
+    if (!key || key !== process.env.ADMIN_SECRET) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+    next();
+  };
+
+  app.post('/api/refresh-products', isAuthenticated, requireAdminKey, async (req: Request, res: Response) => {
     try {
       await storage.refreshProducts();
       
@@ -164,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Endpoint to clear all products before a large import
-  app.post('/api/clear-products', isAuthenticated, async (req: Request, res: Response) => {
+  app.post('/api/clear-products', isAuthenticated, requireAdminKey, async (req: Request, res: Response) => {
     try {
       await storage.clearProducts();
       res.json({ message: 'All products cleared successfully' });
@@ -184,7 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Endpoint to delete a data file
-  app.delete('/api/data-files/:filename', isAuthenticated, async (req: Request, res: Response) => {
+  app.delete('/api/data-files/:filename', isAuthenticated, requireAdminKey, async (req: Request, res: Response) => {
     try {
       const filename = req.params.filename;
       await storage.deleteDataFile(filename);
@@ -195,7 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // File upload endpoint for product data (handles both CSV and ZIP files)
-  app.post('/api/upload-products', isAuthenticated, upload.single('products'), async (req: Request, res: Response) => {
+  app.post('/api/upload-products', isAuthenticated, requireAdminKey, upload.single('products'), async (req: Request, res: Response) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });

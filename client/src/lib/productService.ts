@@ -8,9 +8,9 @@ function authHeaders(): Record<string, string> {
 
 async function getProductBySku(sku: string): Promise<Product | null> {
   try {
-    const normalizedSku = sku.startsWith('?') ? sku : sku;
+    const normalizedSku = sku.startsWith('?') ? sku.slice(1) : sku;
 
-    const res = await fetch(`/api/product/${normalizedSku}`, {
+    const res = await fetch(`/api/product?sku=${encodeURIComponent(normalizedSku)}`, {
       headers: authHeaders(),
     });
     

@@ -1,4 +1,5 @@
 import { useState, FormEvent, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Product } from '@shared/schema';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ export default function NewBrowsePage() {
   const [error, setError] = useState<string | null>(null);
 
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Toast notifications
   const { toast } = useToast();
@@ -54,62 +56,18 @@ export default function NewBrowsePage() {
       .catch(() => {});
   }, []);
 
-  // Load products without useEffect or React Query
-  const loadProducts = async () => {
-    if (isLoading) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/products', { headers: authHeaders() });
-      if (!response.ok) {
-        throw new Error(`Server responded with status: ${response.status}`);
-      }
-      const data = await response.json();
-      setProducts(data);
-    } catch (err) {
-      console.error('Failed to load products:', err);
-      setError('Failed to load products. Please try again later.');
-
-      toast({
-        title: 'Error',
-        description: 'Failed to load products. Please try again later.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
   };
 
-  // Reset search to show all products
-  const handleResetSearch = async () => {
-    if (isLoading) return;
-
-    setIsLoading(true);
+  // Reset search
+  const handleResetSearch = () => {
+    setProducts([]);
+    setSearchInput('');
     setIsSearching(false);
     setHasSearched(false);
     setError(null);
-
-    try {
-      await loadProducts();
-      setSearchInput('');
-    } catch (err) {
-      console.error('Failed to reset products:', err);
-      setError('Failed to reset products. Please try again later.');
-      toast({
-        title: 'Error',
-        description: 'Failed to reset products. Please try again later.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   // Handle search submission
@@ -302,27 +260,11 @@ export default function NewBrowsePage() {
           </div>
         </form>
 
-        <div className="mb-4 flex justify-between items-center">
-          <div>
-            {!isLoading && products.length > 0 && (
-              <p className="text-sm text-neutral-600">
-                {products.length} {products.length === 1 ? 'product' : 'products'} found
-              </p>
-            )}
-          </div>
-          <div>
-            {products.length === 0 && !isLoading && !error && !hasSearched && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={loadProducts}
-                className="text-sm"
-              >
-                Load Products
-              </Button>
-            )}
-          </div>
-        </div>
+        {!isLoading && products.length > 0 && (
+          <p className="text-sm text-neutral-600 mb-4">
+            {products.length} {products.length === 1 ? 'product' : 'products'} found
+          </p>
+        )}
 
         {/* Search status indicators */}
         {isLoading ? (
@@ -358,7 +300,9 @@ export default function NewBrowsePage() {
                 style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}
                 onClick={() => {
                   if (product.sku) {
-                    recordScan(product.sku).catch(err => console.error('Failed to record view:', err));
+                    recordScan(product.sku)
+                      .then(() => queryClient.invalidateQueries({ queryKey: ['/api/scans'] }))
+                      .catch(err => console.error('Failed to record view:', err));
                   }
                   toast({
                     description: product.sku ? `${product.sku} logged to history.` : 'Product viewed.',
@@ -420,29 +364,22 @@ export default function NewBrowsePage() {
               </div>
             ))}
           </div>
-        ) : (
+        ) : hasSearched ? (
           <div className="bg-white rounded-lg p-8 flex flex-col items-center justify-center text-center" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
             <div className="w-14 h-14 flex items-center justify-center bg-gray-100 rounded-full mb-4">
               <span className="material-icons text-gray-400 text-2xl">search_off</span>
             </div>
             <h3 className="font-medium mb-2">No Products Found</h3>
-            <p className="text-neutral-500 text-sm">
-              {hasSearched
-                ? `No products matching "${searchInput}"`
-                : "Click 'Load Products' to view product database."
-              }
-            </p>
-            {hasSearched && (
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={handleResetSearch}
-              >
-                Show All Products
-              </Button>
-            )}
+            <p className="text-neutral-500 text-sm">No products matching "{searchInput}"</p>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={handleResetSearch}
+            >
+              Clear Search
+            </Button>
           </div>
-        )}
+        ) : null}
       </main>
     </div>
   );
