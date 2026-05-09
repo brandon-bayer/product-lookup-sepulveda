@@ -77,6 +77,12 @@ export const insertScanSchema = createInsertSchema(scans).pick({
   userId: true,
 });
 
+export const syncLog = pgTable("sepulveda_sync_log", {
+  id: serial("id").primaryKey(),
+  syncedAt: timestamp("synced_at").notNull().defaultNow(),
+  productCount: integer("product_count").notNull().default(0),
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type InsertScan = z.infer<typeof insertScanSchema>;

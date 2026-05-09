@@ -225,6 +225,28 @@ def run_sync():
 
         nconn.commit()
         total = len(with_sku) + len(without_sku)
+
+        # Record sync timestamp so the web app can display last-updated time
+        try:
+            ncur2 = nconn.cursor()
+            ncur2.execute(
+                """
+                CREATE TABLE IF NOT EXISTS sepulveda_sync_log (
+                    id SERIAL PRIMARY KEY,
+                    synced_at TIMESTAMP NOT NULL DEFAULT NOW(),
+                    product_count INTEGER NOT NULL DEFAULT 0
+                )
+                """
+            )
+            ncur2.execute(
+                "INSERT INTO sepulveda_sync_log (product_count) VALUES (%s)",
+                [total]
+            )
+            nconn.commit()
+            ncur2.close()
+        except Exception as log_err:
+            log(f"Warning: could not write sync log: {log_err}")
+
         log(f"Sync complete — {total} products written to Neon")
         log("=" * 60)
 

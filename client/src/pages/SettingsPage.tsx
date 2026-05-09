@@ -50,7 +50,7 @@ export default function SettingsPage() {
           <CardContent className="space-y-3">
             <div>
               <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>
-                Sepulveda Showroom · Product Catalog v1.0.0
+                Sepulveda Showroom · Product Catalog v2.0
               </p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                 Developed by Contempo Floor Coverings
@@ -65,7 +65,7 @@ export default function SettingsPage() {
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Last Database Update</p>
                 <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--text-head)' }}>
-                  {lastDbUpdate ?? 'Loading…'}
+                  {lastDbUpdate ?? 'Not synced yet'}
                 </p>
               </div>
             </div>

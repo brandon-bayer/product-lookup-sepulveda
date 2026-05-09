@@ -196,7 +196,7 @@ export default function NewBrowsePage() {
               <p className="text-[10px] text-white/55 mt-0.5">Updated {lastUpdated}</p>
             )}
           </div>
-          <span className="text-xs text-white/50 font-medium">v1.0.0</span>
+          <span className="text-xs text-white/50 font-medium">v2.0</span>
         </div>
       </header>
 
