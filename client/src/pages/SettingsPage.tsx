@@ -1,6 +1,34 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { format } from 'date-fns';
+import { getToken } from '@/lib/queryClient';
+
+declare const __BUILD_TIME__: string;
+
+function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 export default function SettingsPage() {
+  const [lastDbUpdate, setLastDbUpdate] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/data-files', { headers: authHeaders() })
+      .then(r => r.ok ? r.json() : null)
+      .then((files: Array<{ name: string; size: number; date: string }> | null) => {
+        if (!files || files.length === 0) return;
+        const latest = files.reduce((a, b) => new Date(a.date) > new Date(b.date) ? a : b);
+        setLastDbUpdate(format(new Date(latest.date), 'MMM d, yyyy · h:mm a'));
+      })
+      .catch(() => {});
+  }, []);
+
+  const buildTime = (() => {
+    try { return format(new Date(__BUILD_TIME__), 'MMM d, yyyy · h:mm a'); }
+    catch { return 'Unknown'; }
+  })();
+
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--app-bg)' }}>
       <header className="bg-[#1d4ed8] text-white" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
@@ -19,13 +47,28 @@ export default function SettingsPage() {
             </CardTitle>
             <CardDescription>Application information and version details</CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>
-              Sepulveda Showroom · Product Catalog v1.0.0
-            </p>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-              Product inventory search application for the Sepulveda showroom location, developed by Contempo Floor Coverings.
-            </p>
+          <CardContent className="space-y-3">
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--text-head)' }}>
+                Sepulveda Showroom · Product Catalog v1.0.0
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                Developed by Contempo Floor Coverings
+              </p>
+            </div>
+
+            <div className="pt-2 border-t border-gray-100 space-y-2">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Last Deployed</p>
+                <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--text-head)' }}>{buildTime}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Last Database Update</p>
+                <p className="text-sm font-medium mt-0.5" style={{ color: 'var(--text-head)' }}>
+                  {lastDbUpdate ?? 'Loading…'}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </main>
