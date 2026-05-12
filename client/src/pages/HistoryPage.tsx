@@ -57,7 +57,7 @@ export default function HistoryPage() {
   if (isLoadingScans) {
     return (
       <div className="flex flex-col min-h-screen" style={{ background: 'var(--app-bg)' }}>
-        <header className="bg-[#D0C4AE] mb-6" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
+        <header className="bg-[#B9AC96] mb-6" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
           <div className="container mx-auto px-4 py-3 flex items-center justify-between">
             <h1 className="text-base font-semibold tracking-tight text-[#3d2e1e]">Product Catalog</h1>
             <span className="text-xs text-[#3d2e1e]/60 font-medium uppercase tracking-wider">History</span>
@@ -72,7 +72,7 @@ export default function HistoryPage() {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--app-bg)' }}>
-      <header className="bg-[#D0C4AE]" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
+      <header className="bg-[#B9AC96]" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <h1 className="text-base font-semibold tracking-tight text-[#3d2e1e]">Product Catalog</h1>
           <span className="text-xs text-[#3d2e1e]/60 font-medium uppercase tracking-wider">History</span>
@@ -159,7 +159,7 @@ export default function HistoryPage() {
             </div>
             <h3 className="font-semibold text-sm mb-1" style={{ color: 'var(--text-head)' }}>No History Yet</h3>
             <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>Products you view will appear here.</p>
-            <Button className="bg-[#D0C4AE] hover:bg-[#BDB29D] text-[#3d2e1e] text-sm font-semibold" onClick={() => window.location.href = '/'}>
+            <Button className="bg-[#B9AC96] hover:bg-[#A69A87] text-[#3d2e1e] text-sm font-semibold" onClick={() => window.location.href = '/'}>
               Browse Products
             </Button>
           </div>

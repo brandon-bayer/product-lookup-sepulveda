@@ -188,7 +188,7 @@ export default function NewBrowsePage() {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--app-bg)' }}>
-      <header className="bg-[#D0C4AE]" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
+      <header className="bg-[#B9AC96]" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div>
             <h1 className="text-base font-semibold tracking-tight text-[#3d2e1e]">Product Catalog</h1>
@@ -212,7 +212,7 @@ export default function NewBrowsePage() {
                 type="search"
                 inputMode="search"
                 placeholder="Search by SKU, style, color…"
-                className="pl-9 pr-9 border-[#e2e5ea] rounded-md focus-visible:ring-[rgba(208,196,174,.2)] focus-visible:border-[#D0C4AE]"
+                className="pl-9 pr-9 border-[#e2e5ea] rounded-md focus-visible:ring-[rgba(185,172,150,.2)] focus-visible:border-[#B9AC96]"
                 style={{
                   fontSize: '16px',
                   WebkitAppearance: 'none',
@@ -251,7 +251,7 @@ export default function NewBrowsePage() {
             </div>
             <Button
               type="submit"
-              className="bg-[#D0C4AE] hover:bg-[#BDB29D] text-[#3d2e1e] text-sm font-semibold px-5 rounded-md"
+              className="bg-[#B9AC96] hover:bg-[#A69A87] text-[#3d2e1e] text-sm font-semibold px-5 rounded-md"
               style={{ height: '44px' }}
               disabled={isLoading}
             >
