@@ -17,7 +17,7 @@ export const predefinedUsers = [
   { displayName: "Lulu Arnold", username: "luluarnold" },
   { displayName: "Marco Bisnar", username: "marcobisnar" },
   { displayName: "Mark Haloossim", username: "markhaloossim" },
-  { displayName: "Matthew Green", username: "matthewgreen" },
+  { displayName: "Matthew Greene", username: "matthewgreen" },
   { displayName: "Matt Mark", username: "mattmark" },
   { displayName: "Richard Garcia", username: "richardgarcia" },
   { displayName: "Ruben Rodriguez", username: "rubenrodriguez" },
