@@ -11,6 +11,7 @@ import { useLocation } from "wouter";
 import { z } from "zod";
 
 const predefinedUsers = [
+  "Andy Cruz",
   "Brandon Bayer",
   "Cristy Aguilar",
   "Edward Maldonaldo",
@@ -20,14 +21,15 @@ const predefinedUsers = [
   "Lulu Arnold",
   "Marco Bisnar",
   "Mark Haloossim",
-  "Matthew Greene",
   "Matt Mark",
+  "Matthew Greene",
   "Richard Garcia",
   "Ruben Rodriguez",
-  "Shaneen Gottula"
-].sort();
+  "Shaneen Gottula",
+];
 
 const usernameMappings: Record<string, string> = {
+  "Andy Cruz": "andycruz",
   "Brandon Bayer": "brandonbayer",
   "Cristy Aguilar": "cristyaguilar",
   "Edward Maldonaldo": "edwardmaldonaldo",
@@ -37,8 +39,8 @@ const usernameMappings: Record<string, string> = {
   "Lulu Arnold": "luluarnold",
   "Marco Bisnar": "marcobisnar",
   "Mark Haloossim": "markhaloossim",
-  "Matthew Greene": "matthewgreen",
   "Matt Mark": "mattmark",
+  "Matthew Greene": "matthewgreen",
   "Richard Garcia": "richardgarcia",
   "Ruben Rodriguez": "rubenrodriguez",
   "Shaneen Gottula": "shaneengottula"

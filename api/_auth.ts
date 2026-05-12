@@ -8,6 +8,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 const scryptAsync = promisify(scrypt);
 
 export const predefinedUsers = [
+  { displayName: "Andy Cruz", username: "andycruz" },
   { displayName: "Brandon Bayer", username: "brandonbayer" },
   { displayName: "Cristy Aguilar", username: "cristyaguilar" },
   { displayName: "Edward Maldonaldo", username: "edwardmaldonaldo" },
@@ -17,8 +18,8 @@ export const predefinedUsers = [
   { displayName: "Lulu Arnold", username: "luluarnold" },
   { displayName: "Marco Bisnar", username: "marcobisnar" },
   { displayName: "Mark Haloossim", username: "markhaloossim" },
-  { displayName: "Matthew Greene", username: "matthewgreen" },
   { displayName: "Matt Mark", username: "mattmark" },
+  { displayName: "Matthew Greene", username: "matthewgreen" },
   { displayName: "Richard Garcia", username: "richardgarcia" },
   { displayName: "Ruben Rodriguez", username: "rubenrodriguez" },
   { displayName: "Shaneen Gottula", username: "shaneengottula" },
