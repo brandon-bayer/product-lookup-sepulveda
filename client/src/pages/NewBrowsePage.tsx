@@ -188,15 +188,15 @@ export default function NewBrowsePage() {
 
   return (
     <div className="flex flex-col min-h-screen" style={{ background: 'var(--app-bg)' }}>
-      <header className="bg-[#1d4ed8] text-white" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
+      <header className="bg-[#D0C4AE]" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div>
-            <h1 className="text-base font-semibold tracking-tight">Product Catalog</h1>
+            <h1 className="text-base font-semibold tracking-tight text-[#3d2e1e]">Product Catalog</h1>
             {lastUpdated && (
-              <p className="text-[10px] text-white/55 mt-0.5">Updated {lastUpdated}</p>
+              <p className="text-[10px] text-[#3d2e1e]/55 mt-0.5">Updated {lastUpdated}</p>
             )}
           </div>
-          <span className="text-xs text-white/50 font-medium">v2.0</span>
+          <span className="text-xs text-[#3d2e1e]/50 font-medium">v2.0</span>
         </div>
       </header>
 
@@ -212,7 +212,7 @@ export default function NewBrowsePage() {
                 type="search"
                 inputMode="search"
                 placeholder="Search by SKU, style, color…"
-                className="pl-9 pr-9 border-[#e2e5ea] rounded-md focus-visible:ring-[rgba(29,78,216,.1)] focus-visible:border-[#1d4ed8]"
+                className="pl-9 pr-9 border-[#e2e5ea] rounded-md focus-visible:ring-[rgba(208,196,174,.2)] focus-visible:border-[#D0C4AE]"
                 style={{
                   fontSize: '16px',
                   WebkitAppearance: 'none',
@@ -251,7 +251,7 @@ export default function NewBrowsePage() {
             </div>
             <Button
               type="submit"
-              className="bg-[#1d4ed8] hover:bg-[#1e40af] text-white text-sm font-semibold px-5 rounded-md"
+              className="bg-[#D0C4AE] hover:bg-[#BDB29D] text-[#3d2e1e] text-sm font-semibold px-5 rounded-md"
               style={{ height: '44px' }}
               disabled={isLoading}
             >
