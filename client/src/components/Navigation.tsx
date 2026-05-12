@@ -24,19 +24,19 @@ export default function Navigation({ currentPath }: NavigationProps) {
       <div className="container mx-auto">
         <nav className="flex justify-around items-center">
           <Link href="/">
-            <div className={`flex flex-col items-center py-3 px-5 ${currentPath === '/' ? 'text-[#3d2e1e] font-medium' : 'text-[#3d2e1e]/60'}`}>
+            <div className={`flex flex-col items-center py-3 px-5 ${currentPath === '/' ? 'text-white font-medium' : 'text-white/60'}`}>
               <span className="material-icons">search</span>
               <span className="text-xs mt-1">Search</span>
             </div>
           </Link>
           <Link href="/history">
-            <div className={`flex flex-col items-center py-3 px-5 ${currentPath === '/history' ? 'text-[#3d2e1e] font-medium' : 'text-[#3d2e1e]/60'}`}>
+            <div className={`flex flex-col items-center py-3 px-5 ${currentPath === '/history' ? 'text-white font-medium' : 'text-white/60'}`}>
               <span className="material-icons">history</span>
               <span className="text-xs mt-1">History</span>
             </div>
           </Link>
           <Link href="/settings">
-            <div className={`flex flex-col items-center py-3 px-5 ${currentPath === '/settings' ? 'text-[#3d2e1e] font-medium' : 'text-[#3d2e1e]/60'}`}>
+            <div className={`flex flex-col items-center py-3 px-5 ${currentPath === '/settings' ? 'text-white font-medium' : 'text-white/60'}`}>
               <span className="material-icons">settings</span>
               <span className="text-xs mt-1">Settings</span>
             </div>
@@ -44,7 +44,7 @@ export default function Navigation({ currentPath }: NavigationProps) {
 
           {/* User Menu */}
           <DropdownMenu>
-            <DropdownMenuTrigger className={`flex flex-col items-center py-3 px-5 text-[#3d2e1e]/60 focus:outline-none`}>
+            <DropdownMenuTrigger className={`flex flex-col items-center py-3 px-5 text-white/60 focus:outline-none`}>
               <span className="material-icons">account_circle</span>
               <span className="text-xs mt-1">{user?.displayName || user?.username}</span>
             </DropdownMenuTrigger>

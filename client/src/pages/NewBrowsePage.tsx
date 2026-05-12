@@ -191,12 +191,12 @@ export default function NewBrowsePage() {
       <header className="bg-[#B9AC96]" style={{ boxShadow: '0 1px 4px rgba(0,0,0,.18)' }}>
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           <div>
-            <h1 className="text-base font-semibold tracking-tight text-[#3d2e1e]">Product Catalog</h1>
+            <h1 className="text-base font-semibold tracking-tight text-white">Product Catalog</h1>
             {lastUpdated && (
-              <p className="text-[10px] text-[#3d2e1e]/55 mt-0.5">Updated {lastUpdated}</p>
+              <p className="text-[10px] text-white/55 mt-0.5">Updated {lastUpdated}</p>
             )}
           </div>
-          <span className="text-xs text-[#3d2e1e]/50 font-medium">v2.0</span>
+          <span className="text-xs text-white/50 font-medium">v2.0</span>
         </div>
       </header>
 
@@ -251,7 +251,7 @@ export default function NewBrowsePage() {
             </div>
             <Button
               type="submit"
-              className="bg-[#B9AC96] hover:bg-[#A69A87] text-[#3d2e1e] text-sm font-semibold px-5 rounded-md"
+              className="bg-[#B9AC96] hover:bg-[#A69A87] text-white text-sm font-semibold px-5 rounded-md"
               style={{ height: '44px' }}
               disabled={isLoading}
             >
