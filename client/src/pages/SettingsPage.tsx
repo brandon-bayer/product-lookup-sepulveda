@@ -42,7 +42,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold flex items-center">
-              <span className="material-icons text-white mr-2 text-lg">info</span>
+              <span className="material-icons text-[#988B73] mr-2 text-lg">info</span>
               About
             </CardTitle>
             <CardDescription>Application information and version details</CardDescription>
