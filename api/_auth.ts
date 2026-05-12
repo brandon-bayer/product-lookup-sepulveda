@@ -11,7 +11,6 @@ export const predefinedUsers = [
   { displayName: "Andy Cruz", username: "andycruz" },
   { displayName: "Brandon Bayer", username: "brandonbayer" },
   { displayName: "Cristy Aguilar", username: "cristyaguilar" },
-  { displayName: "Edward Maldonaldo", username: "edwardmaldonaldo" },
   { displayName: "Karen Scott", username: "karenscott" },
   { displayName: "Leticia Piña", username: "leticiapina" },
   { displayName: "Luis Piña", username: "luispina" },
