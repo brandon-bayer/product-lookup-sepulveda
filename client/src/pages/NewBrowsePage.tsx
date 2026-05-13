@@ -316,11 +316,6 @@ export default function NewBrowsePage() {
                     <span className="font-medium text-sm" style={{ color: 'var(--text-head)' }}>
                       {product.sku || 'No SKU'}
                     </span>
-                    {(product as any).location && (
-                      <span className="text-[10px] font-bold tracking-wide px-1.5 py-0.5 rounded" style={{ background: '#f0ebe2', color: '#988B73' }}>
-                        {(product as any).location}
-                      </span>
-                    )}
                   </div>
                   <span className="text-xs truncate ml-4 max-w-[50%] text-right" style={{ color: 'var(--text-muted)' }}>
                     {cleanManufacturer(product.manufacturer)}
