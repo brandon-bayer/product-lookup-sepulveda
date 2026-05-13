@@ -51,20 +51,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 async function enrichWithLocations(rows: any[]) {
   if (rows.length === 0) return rows;
   try {
-    const styleNames = rows.map((r: any) => r.styleName).filter(Boolean) as string[];
-    if (styleNames.length === 0) return rows;
+    // Fetch all location rows (small table, ~1,744 rows)
+    const locs = await db.execute(sql`SELECT style_name, location FROM sepulveda_locations`);
 
-    const locs = await db.execute(sql`
-      SELECT style_name, location FROM sepulveda_locations
-      WHERE style_name = ANY(${styleNames})
-    `);
-
+    // Build map keyed by lowercase plain name (no trailing parentheticals)
     const locMap: Record<string, string> = {};
     for (const row of locs.rows as any[]) {
-      locMap[row.style_name] = row.location;
+      locMap[(row.style_name as string).toLowerCase()] = row.location as string;
     }
 
-    return rows.map((r: any) => ({ ...r, location: locMap[r.styleName] ?? null }));
+    // Normalize product styleName: strip trailing "(…)" e.g. "(13'2W)", then lowercase
+    // QFloors appends width info in parens: "Tiki Hut (13'2W)" → "tiki hut"
+    const normalize = (s: string) => s.replace(/\s*\([^)]*\)\s*$/, '').trim().toLowerCase();
+
+    return rows.map((r: any) => ({
+      ...r,
+      location: r.styleName ? (locMap[normalize(r.styleName)] ?? null) : null,
+    }));
   } catch {
     // Table may not exist yet — degrade gracefully
     return rows;
