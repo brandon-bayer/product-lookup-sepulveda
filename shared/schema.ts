@@ -77,6 +77,13 @@ export const insertScanSchema = createInsertSchema(scans).pick({
   userId: true,
 });
 
+export const showroomLocations = pgTable("sepulveda_locations", {
+  id: serial("id").primaryKey(),
+  styleName: text("style_name").notNull().unique(), // private label name (matches product.styleName)
+  location: text("location").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const syncLog = pgTable("sepulveda_sync_log", {
   id: serial("id").primaryKey(),
   syncedAt: timestamp("synced_at").notNull().defaultNow(),
