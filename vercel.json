@@ -3,6 +3,7 @@
   "outputDirectory": "dist/public",
   "rewrites": [
     { "source": "/qc", "destination": "/api/qconnect-webhook" },
+    { "source": "/qc/(.*)", "destination": "/api/qconnect-webhook" },
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]

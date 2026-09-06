@@ -14,7 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       INSERT INTO qconnect_log (method, query, headers, body)
       VALUES (
         ${req.method ?? ""},
-        ${JSON.stringify(req.query ?? {})},
+        ${(req.url ?? "") + " | " + JSON.stringify(req.query ?? {})},
         ${JSON.stringify(req.headers ?? {})},
         ${body}
       )
