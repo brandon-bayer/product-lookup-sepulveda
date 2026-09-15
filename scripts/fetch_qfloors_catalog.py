@@ -96,12 +96,11 @@ def main():
         print(f"Wrote {args.out}")
 
     if args.load:
-        # Column mapping is finalized once we have a real (non-empty) CSV to see
-        # the header. Until then, save with --out and inspect.
+        # Loading is a separate, explicit step so the destructive full-replace
+        # is never a side effect of a fetch. Save the CSV, then run the loader:
         sys.exit(
-            "--load not wired yet: the live CSV is still empty, so its columns "
-            "are unknown. Re-run with --out once QFloors populates the catalog, "
-            "share the header, and the loader will be completed to match."
+            "To load: save with --out, then run\n"
+            "    NEON_URL=... python3 scripts/load_catalog_csv.py <file> --replace"
         )
 
 
