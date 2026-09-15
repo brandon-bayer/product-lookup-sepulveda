@@ -33,8 +33,10 @@ import ssl
 import sys
 from urllib.parse import urlparse
 
+# The manufacturer column has appeared under two header names across QFloors
+# export modes; accept either.
+MANUFACTURER_ALIASES = ("~~ManufacturerWeb", "~~ManWebOneStyle")
 CSV_COLS = {
-    "manufacturer": "~~ManWebOneStyle",
     "style_name": "Style Name",
     "style_number": "Style Number",
     "color_name": "Color Name",
@@ -70,6 +72,10 @@ def parse(path, include_dropped):
         if name not in header:
             sys.exit(f"CSV missing expected column: {name!r}")
         idx[key] = header.index(name)
+    man_col = next((c for c in MANUFACTURER_ALIASES if c in header), None)
+    if man_col is None:
+        sys.exit(f"CSV missing a manufacturer column (looked for {MANUFACTURER_ALIASES})")
+    idx["manufacturer"] = header.index(man_col)
 
     def cell(row, key):
         j = idx[key]
